@@ -1,0 +1,39 @@
+{
+  "name": "reddev-vchat",
+  "version": "1.0.0-dev",
+  "description": "Reddev video chat with twilio integration",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm-run-all build:app",
+    "build:app": "browserify app/src/index.js > app/public/index.js",
+    "clean": "npm-run-all clean:app",
+    "clean:app": "rimraf app/public/index.js",
+    "start": "npm run clean && npm run build && node server"
+  },
+  "keywords": [
+    "twilio",
+    "video",
+    "chat",
+    "ip",
+    "real",
+    "time",
+    "diggity"
+  ],
+  "author": "TamilSelvan",
+  "license": "MIT",
+  "homepage": "https://github.com/twilio/video-quickstart-js#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "express": "^4.15.2",
+    "prismjs": "^1.6.0",
+    "stackblur-canvas": "^1.4.0",
+    "twilio": "^3.19.1",
+    "twilio-video": "^2.7.2"
+  },
+  "devDependencies": {
+    "browserify": "^14.3.0",
+    "copyfiles": "^1.2.0",
+    "npm-run-all": "^4.0.2",
+    "rimraf": "^2.6.1"
+  }
+}
