@@ -8,7 +8,11 @@
     "build:app": "browserify app/src/index.js > app/public/index.js",
     "clean": "npm-run-all clean:app",
     "clean:app": "rimraf app/public/index.js",
-    "start": "npm run clean && npm run build && node server"
+    "start": "npm run clean && npm run build && node server",
+    "startServer": "npm run clean && npm run build && forever start server",
+    "stopServer": "forever stop server",
+    "restartServer": "forever restart  server",
+    "stopallServers": "forever stopall"
   },
   "keywords": [
     "twilio",
@@ -25,6 +29,7 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
+    "forever": "^3.0.2",
     "prismjs": "^1.6.0",
     "stackblur-canvas": "^1.4.0",
     "twilio": "^3.19.1",
