@@ -87,3 +87,110 @@ div.participant.main::before {
     height: 270px;
   }
 }
+
+
+section {
+  height:70%;
+  background-color:#2B2B2A;
+}
+
+section input {
+  display:block;
+  height:52px;
+  width:100%;
+  margin:10px auto;
+  outline:none;
+  background-color:#565656;
+  border:none;
+  border-bottom:1px solid #2B2B2A;
+  /* font-size:42px; */
+  color:#eee;
+  padding: 10px;
+}
+
+section button {
+  background-color:#565656;
+  /* font-size:42px; */
+  color:#eee;
+  padding: 10px;
+}
+
+header {
+  width:100%;
+  text-align:right;
+  bottom:20px;
+}
+
+
+.other {
+  float: left;
+  padding: 10px 20px;
+  width: 97%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: #313131;
+}
+#messages {
+  background-color: #232323;
+  padding: 20px;
+  min-height: calc(100vh - 50px);
+  /* width: 800px; */
+  margin: 0 auto;
+  max-height: 500px;
+  overflow-y: auto;
+  float: left;
+  width: 100%;
+}
+.message-container {
+  margin: 5px 0;
+  color: #fff;
+  float: left;
+  width: 100%;
+}
+
+#messages p {
+margin:5px 0;
+padding:0;
+}
+
+.info {
+margin:5px 0;
+font-style:italic;
+}
+
+
+
+.message-container .username {
+display:inline-block;
+margin-right:5px;
+font-weight:bold;
+color:#849091;
+}
+
+.username.me {
+font-weight:bold;
+color:cyan;
+/* float: right; */
+}
+
+.message-container .username.me {
+display:inline-block;
+margin-right:5px;
+}
+
+.message.me {
+/*float: right;*/
+margin-right: 5px;
+}
+
+.mine {
+   float: left;
+  width: 97%;
+  background: #565656;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: arial;
+text-align:right;
+ margin-bottom: 10px;
+}

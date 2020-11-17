@@ -70,17 +70,17 @@ function setCurrentActiveParticipant(room) {
 }
 
 /* To Mute and Un-Mute the Audio */
-function muteLocalParticipant( audioBtn ) {
+function muteLocalParticipant( audioBtn, identity , sid) {
 
   const mute = !audioBtn.hasClass('muted');
   const participantSID = audioBtn.parent().data('sid');
   
   if (mute) {
-    muteYourAudio(room);
+    muteYourAudio(room, identity, sid);
     audioBtn.addClass('muted');
     audioBtn.html('<img src="./img/mute-mike.png" alt="unmute" width="20" height="20"/>');
   } else {
-      unmuteYourAudio(room);
+      unmuteYourAudio(room, identity, sid);
       audioBtn.removeClass('muted');
       audioBtn.html('<img src="./img/mike.png" alt="Mute" width="20" height="20"/>');
   }
@@ -89,18 +89,18 @@ function muteLocalParticipant( audioBtn ) {
 
 
 /*  To Stop and Start the Video */
-function videoLocalParticipant( videoBtn ) {
+function videoLocalParticipant( videoBtn, identity, sid ) {
 
   const mute = !videoBtn.hasClass('muted');
   const participantSID = videoBtn.parent().data('sid');
 
   if (mute) {
-      muteYourVideo(room);
+      muteYourVideo(room, identity, sid);
       videoBtn.addClass('muted');
       videoBtn.html('<img src="./img/mute-video.png" alt="Start" width="20" height="20"/>');
   }
   else {
-      unmuteYourVideo(room);
+      unmuteYourVideo(room, identity, sid);
       videoBtn.removeClass('muted');
       videoBtn.html('<img src="./img/video.png" alt="Stop" width="20" height="20"/>');
   }
@@ -108,23 +108,26 @@ function videoLocalParticipant( videoBtn ) {
 } // End :: videoLocalParticipant()
 
 /* navigator.mediaDevices.enumerateDevices() */
-function setupAudioVideocontrols(sid) {
+function setupAudioVideocontrols(sid, identity, showAudioButton, showVideoButton) {
 
+  
   const $controls = $(`<div id="userControls-${sid}" class="bottom-right" data-sid="${sid}"> </div>`);
   const audioBtn = $(`<button id="muteAudioBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/mike.png" alt="Mute" width="20" height="20"/></button>`); // Mute & UnMute
   const videoBtn = $(`<button id="muteVideoBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/video.png" alt="Stop" width="20" height="20"/></button>`); // Video On Off
 
   audioBtn.on("click", function () {
-      muteLocalParticipant( $(this) );
+      muteLocalParticipant( $(this), identity, sid);
   });
 
   videoBtn.on("click", function () {
-      videoLocalParticipant( $(this) );
+      videoLocalParticipant( $(this), identity, sid);
   });
 
-  $controls.append(audioBtn);
-  $controls.append(videoBtn);
-
+  if(showAudioButton)
+    $controls.append(audioBtn);
+  if(showVideoButton)
+    $controls.append(videoBtn);
+  
   return $controls
 
 } // End :: setupAudioVideocontrols{}
@@ -161,12 +164,19 @@ function setupParticipantContainer(participant, room) {
       setActiveParticipant(participant);
     }
   });
-
+  var isAdmin = room.localParticipant.identity.indexOf("Admin") >= 0;
+  //mute option for local participants
   if(participant === room.localParticipant){
     var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;margin-top:255px;margin-left:150px"></div>`);
-    const $controls = setupAudioVideocontrols(sid);
+    const $controls = setupAudioVideocontrols(sid,identity,true,true);
     videoDiv.append($controls); // Buttons on Video boxes
     $container.append(videoDiv);
+  }else if(isAdmin){
+    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;margin-top:255px;margin-left:150px"></div>`);
+    const $controls = setupAudioVideocontrols(sid,identity,true,false);
+    videoDiv.append($controls); // Buttons on Video boxes
+    $container.append(videoDiv);
+
   }
 
   // Add the Participant's container to the DOM.

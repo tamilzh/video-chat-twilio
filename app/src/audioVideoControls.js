@@ -6,27 +6,49 @@
  * @param {'audio'|'video'} kind - The type of media you want to mute/unmute
  * @param {'mute'|'unmute'} action - Whether you want to mute/unmute
  */
-function muteOrUnmuteYourMedia(room, kind, action) {
+function muteOrUnmuteYourMedia(room, kind, action, identity, sid) {
   const publications = kind === 'audio'
     ? room.localParticipant.audioTracks
     : room.localParticipant.videoTracks;
 
-  publications.forEach(function(publication) {
-    if (action === 'mute') {
-      publication.track.disable();
-    } else {
-      publication.track.enable();
-    }
-  });
+  if(room.localParticipant.identity === identity) {
+    publications.forEach(function(publication) {
+      if (action === 'mute') {
+        publication.track.mediaStreamTrack.enabled = false;
+      } else {
+        publication.track.mediaStreamTrack.enabled = true;
+      }
+    });
+  }else{
+    room.participants.forEach(function (track) {
+      if(track.identity == identity){
+          const remotePublications = kind === 'audio'
+        ? track.audioTracks
+        : track.videoTracks;
+        
+        remotePublications.forEach(function(remotePublication) {
+            if (action === 'mute') {
+              remotePublication.track.mediaStreamTrack.enabled = false;
+            //  remotePublication.track.mediaStreamTrack.muted = true;
+            } else {
+              remotePublication.track.mediaStreamTrack.enabled = true;
+            //  remotePublication.track.mediaStreamTrack.muted = false;
+            }
+        
+        });
+      }
+    });
+  }
 }
+
 
 /**
  * Mute your audio in a Room.
  * @param {Room} room - The Room you have joined
  * @returns {void}
  */
-function muteYourAudio(room) {
-  muteOrUnmuteYourMedia(room, 'audio', 'mute');
+function muteYourAudio(room, identity, sid) {
+  muteOrUnmuteYourMedia(room, 'audio', 'mute', identity, sid);
 }
 
 /**
@@ -34,8 +56,8 @@ function muteYourAudio(room) {
  * @param {Room} room - The Room you have joined
  * @returns {void}
  */
-function muteYourVideo(room) {
-  muteOrUnmuteYourMedia(room, 'video', 'mute');
+function muteYourVideo(room, identity, sid) {
+  muteOrUnmuteYourMedia(room, 'video', 'mute', identity, sid);
 }
 
 /**
@@ -43,8 +65,8 @@ function muteYourVideo(room) {
  * @param {Room} room - The Room you have joined
  * @returns {void}
  */
-function unmuteYourAudio(room) {
-  muteOrUnmuteYourMedia(room, 'audio', 'unmute');
+function unmuteYourAudio(room, identity, sid) {
+  muteOrUnmuteYourMedia(room, 'audio', 'unmute', identity, sid);
 }
 
 /**
@@ -52,8 +74,8 @@ function unmuteYourAudio(room) {
  * @param {Room} room - The Room you have joined
  * @returns {void}
  */
-function unmuteYourVideo(room) {
-  muteOrUnmuteYourMedia(room, 'video', 'unmute');
+function unmuteYourVideo(room, identity, sid) {
+  muteOrUnmuteYourMedia(room, 'video', 'unmute', identity, sid);
 }
 
 /**

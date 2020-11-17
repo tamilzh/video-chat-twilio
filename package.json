@@ -27,12 +27,18 @@
   "license": "MIT",
   "homepage": "https://github.com/twilio/video-quickstart-js#readme",
   "dependencies": {
+    "babel-core": "^6.26.3",
+    "babelify": "^8.0.0",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
+    "extend": "^3.0.2",
     "forever": "^3.0.2",
     "prismjs": "^1.6.0",
+    "pug": "^3.0.0  ",
     "stackblur-canvas": "^1.4.0",
     "twilio": "^3.19.1",
+    "twilio-chat": "^4.0.0",
+    "twilio-notifications": "^0.5.11",
     "twilio-video": "^2.7.2"
   },
   "devDependencies": {

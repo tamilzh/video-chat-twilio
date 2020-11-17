@@ -16,6 +16,8 @@ const { jwt: { AccessToken } } = require('twilio');
 
 const VideoGrant = AccessToken.VideoGrant;
 
+const ChatGrant = AccessToken.ChatGrant;
+
 // Max. period that a Participant is allowed to be in a Room (currently 14400 seconds or 4 hours)
 const MAX_ALLOWED_SESSION_DURATION = 14400;
 
@@ -56,6 +58,14 @@ app.get('/token', function(request, response) {
   // Grant the access token Twilio Video capabilities.
   const grant = new VideoGrant();
   token.addGrant(grant);
+  if(process.env.TWILIO_CHAT_SERVICE_SID){
+     // Create a "grant" which enables a client to use Chat as a given user
+  const chatGrant = new ChatGrant({
+    serviceSid: process.env.TWILIO_CHAT_SERVICE_SID,
+  });
+  token.addGrant(chatGrant);
+  }
+ 
 
   // Serialize the token to a JWT string.
   response.send(token.toJwt());

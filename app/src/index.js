@@ -4,6 +4,7 @@ const { isSupported } = require('twilio-video');
 
 const { isMobile } = require('./browser');
 const joinRoom = require('./joinroom');
+const chatRoom = require('./chatRoom');
 const micLevel = require('./miclevel');
 const selectMedia = require('./selectmedia');
 const selectRoom = require('./selectroom');
@@ -100,7 +101,8 @@ async function selectAndJoinRoom(error = null) {
 
     // Add the specified video device ID to ConnectOptions.
     connectOptions.video.deviceId = { exact: deviceIds.video };
-
+    // Join the chat Room.
+    await chatRoom(token,identity);
     // Join the Room.
     await joinRoom(token, connectOptions);
 

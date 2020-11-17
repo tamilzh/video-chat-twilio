@@ -12,6 +12,7 @@ function selectRoom($modal, error) {
   const $alert = $('div.alert', $modal);
   const $changeMedia = $('button.btn-dark', $modal);
   const $identity = $('#screen-name', $modal);
+  const $password = $('#screen-password', $modal);
   const $join = $('button.btn-primary', $modal);
   const $roomName = $('#room-name', $modal);
 
@@ -48,7 +49,8 @@ function selectRoom($modal, error) {
       $join.click(function onJoin() {
         const identity = $identity.val();
         const roomName = $roomName.val();
-        if (identity && roomName) {
+        const password = $password.val();
+        if (identity && roomName && password === "secret!") {
           // Append the Room name to the web application URL.
           addUrlParams({ roomName });
 
@@ -57,6 +59,9 @@ function selectRoom($modal, error) {
 
           $join.off('click', onJoin);
           $modal.modal('hide');
+        }else{
+          $alert.html(`<h5>Invalid Credentials</h5>`);
+          $alert.css('display', '');
         }
       });
     });

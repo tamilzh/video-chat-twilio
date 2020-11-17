@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
   </head>
   <body>
+    
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">
-        <img src="./img/video-logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
-        <span style="margin: 0 10px">Sala COSPA</span>
-      </a>
+      
+      <button class="btn btn-outline-primary" id="leave-room">Leave Room</button>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsible-content" aria-controls="collapsible-content" aria-expanded="false" aria-label="Toggle Navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -21,18 +20,42 @@
             <!-- <a class="nav-link" href="/examples">More Examples</a> -->
           </li>
         </ul>
-        <button class="btn btn-outline-primary" id="leave-room">Leave Room</button>
+        <a class="navbar-brand" href="#">
+          <img src="./img/video-logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+          <span style="margin: 0 10px">Sala COSPA</span>
+        </a>
       </div>
     </nav>
     <div class="container-fluid">
       <div class="row" id="room">
-        <div id="participants" style="text-align: left"></div>
-        <div id="active-participant" class="col-xs-12 col-sm-3 col-md-2" style="text-align: center;display: none;">
-          <div class="participant main">
-            <video autoplay playsinline muted></video>
+        <div class="col-xs-12 col-sm-8 col-md-8">
+          <div id="participants" style="text-align: left"></div>
+          <div id="active-participant" class="col-xs-12 col-sm-3 col-md-2" style="text-align: center;display: none;">
+            <div class="participant main">
+              <video autoplay playsinline muted></video>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4" style="padding-right:0px">
+          <header style="background-color: #565656;text-align: center;color: aliceblue;">
+            Chat
+          </header>
+          <section>
+            <div id="messages"></div>
+            <div class="row" style="width:100%;background-color: #565656; margin-left: 0px;">
+              <div class="col-lg-9">
+                <input type="file" name="file" id="formInputFile" style="margin:0px"/>
+              </div>
+              <div class="col-lg-2">
+                <button id="chat-input-file">send</button>
+              </div>
+            </div>
+            <input id="chat-input" type="text" placeholder="type.." style="margin: 0px;"/>
+          </section>
           </div>
         </div>
       </div>
+      
       <div id="modals">
         <div class="modal fade" id="select-mic" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="select-mic-label" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -91,6 +114,10 @@
                   <label id="screen-name-label" for="screen-name">Name</label>
                   <input id="screen-name" class="form-control" type="text" />
                 </div>
+                <div class="form-group">
+                  <label id="screen-name-label" for="screen-name">Password</label>
+                  <input id="screen-password" class="form-control" type="password" />
+                </div>
                 <div class="alert alert-warning" role="alert">
                 </div>
               </div>
@@ -117,6 +144,6 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="index.js"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/chat/v4.0/twilio-chat.min.js"></script><script src="index.js"></script>
   </body>
 </html>
