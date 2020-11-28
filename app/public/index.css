@@ -133,7 +133,8 @@ header {
 #messages {
   background-color: #232323;
   padding: 20px;
-  min-height: calc(100vh - 50px);
+  min-height: calc(50vh - 50px);
+  max-height: calc(80vh - 50px);
   /* width: 800px; */
   margin: 0 auto;
   max-height: 500px;

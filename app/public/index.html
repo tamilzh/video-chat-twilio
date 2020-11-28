@@ -43,14 +43,15 @@
           <section>
             <div id="messages"></div>
             <div class="row" style="width:100%;background-color: #565656; margin-left: 0px;">
-              <div class="col-lg-9">
-                <input type="file" name="file" id="formInputFile" style="margin:0px"/>
+              <div class="col-lg-10">
+                  <input type="file" class="custom-file-input" id="formInputFile">
+                  <label id="file-label" class="custom-file-label" for="formInputFile">Upload file</label>
               </div>
               <div class="col-lg-2">
-                <button id="chat-input-file">send</button>
+                <button id="chat-input-file" style="padding: 5px;" disabled>Send</button>
               </div>
             </div>
-            <input id="chat-input" type="text" placeholder="type.." style="margin: 0px;"/>
+            <input id="chat-input" type="text" placeholder="Type your message.." style="margin: 0px;"/>
           </section>
           </div>
         </div>
@@ -145,5 +146,12 @@
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://media.twiliocdn.com/sdk/js/chat/v4.0/twilio-chat.min.js"></script><script src="index.js"></script>
+    <script>
+      $(".custom-file-input").on("change", function() {
+      var fileName = $(this).val().split("\\").pop();
+      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+      $("#chat-input-file").prop("disabled",false);
+    });
+    </script>
   </body>
 </html>

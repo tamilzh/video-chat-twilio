@@ -158,6 +158,9 @@ function createOrJoinGeneralChannel() {
   var $inputbtn = $('#chat-input-file');
   $inputbtn.on('click', function(e) {
       uploadMedia();
+      $inputbtn.val('');
+      $("#file-label").html("Upload file");
+      $("#chat-input-file").prop("disabled",true);
   });
   }
 
