@@ -1,13 +1,14 @@
 'use strict';
-
-const { connect, createLocalVideoTrack } = require('twilio-video');
+ 
+const { connect, createLocalVideoTrack, LocalDataTrack, createLocalTracks } = require('twilio-video');
 const { isMobile } = require('./browser');
 const controls = require('./audioVideoControls');
 const muteYourAudio = controls.muteYourAudio;
 const muteYourVideo = controls.muteYourVideo;
 const unmuteYourAudio = controls.unmuteYourAudio;
 const unmuteYourVideo = controls.unmuteYourVideo;
-
+const sendDataMessage = controls.sendDataMessage;
+const dataTrack = new LocalDataTrack();
 const $leave = $('#leave-room');
 const $room = $('#room');
 const $activeParticipant = $('div#active-participant > div.participant.main', $room);
@@ -86,6 +87,33 @@ function muteLocalParticipant( audioBtn, identity , sid) {
   }
 } // End :: muteLocalParticipant()
 
+/* To Mute and Un-Mute the Audio */
+function muteRemoteParticipantAudio( audioBtn) {
+
+  const mute = !audioBtn.hasClass('muted');
+  if (mute) {
+    audioBtn.addClass('muted');
+    audioBtn.html('<img src="./img/mute-mike.png" alt="unmute" width="20" height="20"/>');
+  } else {
+    audioBtn.removeClass('muted');
+    audioBtn.html('<img src="./img/mike.png" alt="Mute" width="20" height="20"/>');
+  }
+} // End :: muteLocalParticipant()
+
+
+/* To Mute and Un-Mute the Video */
+function muteRemoteParticipantVideo( videoBtn) {
+
+  const mute = !videoBtn.hasClass('muted');
+  
+  if (mute) {
+    videoBtn.addClass('muted');
+    videoBtn.html('<img src="./img/mute-video.png" alt="unmute" width="20" height="20"/>');
+  } else {
+    videoBtn.removeClass('muted');
+    videoBtn.html('<img src="./img/video.png" alt="Mute" width="20" height="20"/>');
+  }
+} // End :: muteLocalParticipantVideo()
 
 
 /*  To Stop and Start the Video */
@@ -108,25 +136,51 @@ function videoLocalParticipant( videoBtn, identity, sid ) {
 } // End :: videoLocalParticipant()
 
 /* navigator.mediaDevices.enumerateDevices() */
-function setupAudioVideocontrols(sid, identity, showAudioButton, showVideoButton) {
+function setupAudioVideocontrols(sid, identity, showAudioButton, showVideoButton, isAdmin) {
 
-  
   const $controls = $(`<div id="userControls-${sid}" class="bottom-right" data-sid="${sid}"> </div>`);
   const audioBtn = $(`<button id="muteAudioBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/mike.png" alt="Mute" width="20" height="20"/></button>`); // Mute & UnMute
   const videoBtn = $(`<button id="muteVideoBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/video.png" alt="Stop" width="20" height="20"/></button>`); // Video On Off
 
   audioBtn.on("click", function () {
-      muteLocalParticipant( $(this), identity, sid);
+    if(isAdmin){
+      sendDataMessage(dataTrack,JSON.stringify({
+        type: "MUTE_FROM_CALL",
+        identity: identity,
+        sid: sid
+        }));    
+      }else{
+        sendDataMessage(dataTrack,JSON.stringify({
+          type: "UPDATE_REMOTE_AUDIO_ICON",
+          identity: identity,
+          sid: sid
+          }));
+        muteLocalParticipant($(this), identity, sid);
+     }
   });
 
   videoBtn.on("click", function () {
-      videoLocalParticipant( $(this), identity, sid);
+    if(isAdmin){
+      sendDataMessage(dataTrack,JSON.stringify({
+        type: "MUTE_VIDEO_FROM_CALL",
+        identity: identity,
+        sid: sid
+        }));    
+        
+      }else{
+        sendDataMessage(dataTrack,JSON.stringify({
+          type: "UPDATE_REMOTE_VIDEO_ICON",
+          identity: identity,
+          sid: sid
+          }));
+        videoLocalParticipant( $(this), identity, sid);
+      }
   });
 
-  if(showAudioButton)
-    $controls.append(audioBtn);
   if(showVideoButton)
     $controls.append(videoBtn);
+  if(showAudioButton)
+    $controls.append(audioBtn);
   
   return $controls
 
@@ -167,13 +221,13 @@ function setupParticipantContainer(participant, room) {
   var isAdmin = room.localParticipant.identity.indexOf("Admin") >= 0;
   //mute option for local participants
   if(participant === room.localParticipant){
-    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;margin-top:255px;margin-left:150px"></div>`);
-    const $controls = setupAudioVideocontrols(sid,identity,true,true);
+    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;width:100%;text-align:right;margin-top:50px"></div>`);
+    const $controls = setupAudioVideocontrols(sid, identity, true, true, false);
     videoDiv.append($controls); // Buttons on Video boxes
     $container.append(videoDiv);
   }else if(isAdmin){
-    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;margin-top:255px;margin-left:150px"></div>`);
-    const $controls = setupAudioVideocontrols(sid,identity,true,false);
+    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;width:100%;text-align:right;margin-top:50px"></div>`);
+    const $controls = setupAudioVideocontrols(sid, identity, true, false, true);
     videoDiv.append($controls); // Buttons on Video boxes
     $container.append(videoDiv);
 
@@ -204,16 +258,18 @@ function setVideoPriority(participant, priority) {
  * @param participant - the Participant which published the Track
  */
 function attachTrack(track, participant) {
-  // Attach the Participant's Track to the thumbnail.
-  const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
-  $media.css('opacity', '');
-  track.attach($media.get(0));
+  if(track.kind === "video" || track.kind === "audio"){
+    // Attach the Participant's Track to the thumbnail.
+    const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
+    $media.css('opacity', '');
+    track.attach($media.get(0));
 
-  // If the attached Track is a VideoTrack that is published by the active
-  // Participant, then attach it to the main video as well.
-  if (track.kind === 'video' && participant === activeParticipant) {
-    track.attach($activeVideo.get(0));
-    $activeVideo.css('opacity', '');
+    // If the attached Track is a VideoTrack that is published by the active
+    // Participant, then attach it to the main video as well.
+    if (track.kind === 'video' && participant === activeParticipant) {
+      track.attach($activeVideo.get(0));
+      $activeVideo.css('opacity', '');
+    }
   }
 }
 
@@ -223,16 +279,18 @@ function attachTrack(track, participant) {
  * @param participant - the Participant that is publishing the Track
  */
 function detachTrack(track, participant) {
-  // Detach the Participant's Track from the thumbnail.
-  const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
-  $media.css('opacity', '0');
-  track.detach($media.get(0));
+  if(track.kind === "video" || track.kind === "audio"){
+    // Detach the Participant's Track from the thumbnail.
+    const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
+    $media.css('opacity', '0');
+    track.detach($media.get(0));
 
-  // If the detached Track is a VideoTrack that is published by the active
-  // Participant, then detach it from the main video as well.
-  if (track.kind === 'video' && participant === activeParticipant) {
-    track.detach($activeVideo.get(0));
-    $activeVideo.css('opacity', '0');
+    // If the detached Track is a VideoTrack that is published by the active
+    // Participant, then detach it from the main video as well.
+    if (track.kind === 'video' && participant === activeParticipant) {
+      track.detach($activeVideo.get(0));
+      $activeVideo.css('opacity', '0');
+    }
   }
 }
 
@@ -286,6 +344,25 @@ function trackPublished(publication, participant) {
 
   // Once the TrackPublication is subscribed to, attach the Track to the DOM.
   publication.on('subscribed', track => {
+    track.on("message", function (message) {
+      const messageBody = JSON.parse(message);
+        if (
+          messageBody.identity ===
+          room.localParticipant.identity
+        ) {
+          if (messageBody.type === "MUTE_FROM_CALL") {
+            $("#muteAudioBtn-"+messageBody.sid).click();
+          }else if (messageBody.type === "MUTE_VIDEO_FROM_CALL"){
+            $("#muteVideoBtn-"+messageBody.sid).click();
+          }
+      }else{
+        if (messageBody.type === "UPDATE_REMOTE_AUDIO_ICON"){
+          muteRemoteParticipantAudio($("#muteAudioBtn-"+messageBody.sid));
+        }else if (messageBody.type === "UPDATE_REMOTE_VIDEO_ICON"){
+          muteRemoteParticipantVideo($("#muteVideoBtn-"+messageBody.sid));
+        }
+      }
+    });
     attachTrack(track, participant);
   });
 
@@ -296,13 +373,30 @@ function trackPublished(publication, participant) {
 }
 
 /**
+ * Setup a LocalAudioTrack and LocalVideoTrack to render to a <video> element.
+ * @param {HTMLVideoElement} video
+ * @returns {Promise<Array<LocalAudioTrack|LocalVideoTrack>>} audioAndVideoTrack
+ */
+async function setupLocalAudioAndVideoTracks(video) {
+  const audioAndVideoTrack = await createLocalTracks();
+  return audioAndVideoTrack;
+}
+
+/**
  * Join a Room.
  * @param token - the AccessToken used to join a Room
  * @param connectOptions - the ConnectOptions used to join a Room
  */
 async function joinRoom(token, connectOptions) {
   // Join to the Room with the given AccessToken and ConnectOptions.
-  const room = await connect(token, connectOptions);
+  const audioAndVideoTrack = await setupLocalAudioAndVideoTracks();
+  const tracks = audioAndVideoTrack.concat(dataTrack);
+  const name = "Video Chat"
+  //const room = await video.connect(token, connectOptions);
+  const room = await connect(token, {
+    name,
+    tracks
+  });
 
   // Save the LocalVideoTrack.
   let localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;

@@ -14,12 +14,13 @@ function muteOrUnmuteYourMedia(room, kind, action, identity, sid) {
   if(room.localParticipant.identity === identity) {
     publications.forEach(function(publication) {
       if (action === 'mute') {
-        publication.track.mediaStreamTrack.enabled = false;
+        publication.track.disable();
       } else {
-        publication.track.mediaStreamTrack.enabled = true;
+        publication.track.enable();
       }
     });
   }else{
+    /** Its not in use will keep it for reference */
     room.participants.forEach(function (track) {
       if(track.identity == identity){
           const remotePublications = kind === 'audio'
@@ -29,12 +30,11 @@ function muteOrUnmuteYourMedia(room, kind, action, identity, sid) {
         remotePublications.forEach(function(remotePublication) {
             if (action === 'mute') {
               remotePublication.track.mediaStreamTrack.enabled = false;
-            //  remotePublication.track.mediaStreamTrack.muted = true;
+              //remotePublication.track.mediaStreamTrack.muted = true;
             } else {
               remotePublication.track.mediaStreamTrack.enabled = true;
-            //  remotePublication.track.mediaStreamTrack.muted = false;
-            }
-        
+              //remotePublication.track.mediaStreamTrack.muted = false;
+            } 
         });
       }
     });
@@ -79,6 +79,16 @@ function unmuteYourVideo(room, identity, sid) {
 }
 
 /**
+ * Send a chat message using the given LocalDataTrack.
+ * @param {LocalDataTrack} dataTrack - The {@link LocalDataTrack} to send a message on
+ * @param {string} message - The message to be sent
+ */
+function sendDataMessage(dataTrack, message) {
+  //alert(message);
+  dataTrack.send(message);
+}
+
+/**
  * A RemoteParticipant muted or unmuted its media.
  * @param {Room} room - The Room you have joined
  * @param {function} onMutedMedia - Called when a RemoteParticipant muted its media
@@ -101,3 +111,4 @@ exports.muteYourVideo = muteYourVideo;
 exports.unmuteYourAudio = unmuteYourAudio;
 exports.unmuteYourVideo = unmuteYourVideo;
 exports.participantMutedOrUnmutedMedia = participantMutedOrUnmutedMedia;
+exports.sendDataMessage = sendDataMessage;
