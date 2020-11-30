@@ -49,3 +49,5 @@ package-lock.json
 
 # The generated index.js
 app/public/index.js
+
+node_modules*
