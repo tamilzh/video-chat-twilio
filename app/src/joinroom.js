@@ -115,6 +115,19 @@ function muteRemoteParticipantVideo( videoBtn) {
   }
 } // End :: muteLocalParticipantVideo()
 
+/* To Raise hand up or down */
+function raiseRemoteParticipantUpDown( raiseBtn) {
+
+  const raised = !raiseBtn.hasClass('raised');
+  
+  if (raised) {
+    raiseBtn.addClass('raised');
+    raiseBtn.html('<img src="./img/hand-up.png" alt="Raised" width="20" height="20"/>');
+  } else {
+    raiseBtn.removeClass('raised');
+    raiseBtn.html('<img src="./img/raising-hand.png" alt="Raise" width="20" height="20"/>');
+  }
+} // End :: raiseRemoteParticipantUpDown()
 
 /*  To Stop and Start the Video */
 function videoLocalParticipant( videoBtn, identity, sid ) {
@@ -135,13 +148,27 @@ function videoLocalParticipant( videoBtn, identity, sid ) {
 
 } // End :: videoLocalParticipant()
 
-/* navigator.mediaDevices.enumerateDevices() */
-function setupAudioVideocontrols(sid, identity, showAudioButton, showVideoButton, isAdmin) {
+function setupHandcontrols($controls, sid, identity, activateOnClick){
+	const handBtn = $(`<button id="handBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/raising-hand.png" alt="Raise" width="20" height="20"/></button>`); // Raise On Off
+	if(activateOnClick){
+  		handBtn.on("click", function () {
+        	sendDataMessage(dataTrack,JSON.stringify({
+          	type: "RAISE_UP_DOWN_HAND",
+          	identity: identity,
+          	sid: sid
+          }));
+        raiseRemoteParticipantUpDown($(this));   
+    	});
+  	}
+  	$controls.append(handBtn);
+  	return $controls;
+}
 
-  const $controls = $(`<div id="userControls-${sid}" class="bottom-right" data-sid="${sid}"> </div>`);
+/* navigator.mediaDevices.enumerateDevices() */
+function setupAudioVideocontrols($controls, sid, identity, showAudioButton, showVideoButton, isAdmin) {
+
   const audioBtn = $(`<button id="muteAudioBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/mike.png" alt="Mute" width="20" height="20"/></button>`); // Mute & UnMute
   const videoBtn = $(`<button id="muteVideoBtn-${sid}" class="btn btn-light btn-sm"><img src="./img/video.png" alt="Stop" width="20" height="20"/></button>`); // Video On Off
-
   audioBtn.on("click", function () {
     if(isAdmin){
       sendDataMessage(dataTrack,JSON.stringify({
@@ -177,11 +204,14 @@ function setupAudioVideocontrols(sid, identity, showAudioButton, showVideoButton
       }
   });
 
-  if(showVideoButton)
+  if(showVideoButton){
     $controls.append(videoBtn);
-  if(showAudioButton)
+  }
+  if(showAudioButton){
     $controls.append(audioBtn);
-  
+  }
+
+    
   return $controls
 
 } // End :: setupAudioVideocontrols{}
@@ -219,19 +249,16 @@ function setupParticipantContainer(participant, room) {
     }
   });
   var isAdmin = room.localParticipant.identity.indexOf("Admin") >= 0;
+  const $controls = $(`<div id="userControls-${sid}" class="bottom-right" data-sid="${sid}"> </div>`);
+  var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;width:100%;text-align:right;margin-top:50px"></div>`);
+  videoDiv.append(setupHandcontrols($controls, sid, identity,participant === room.localParticipant));  
   //mute option for local participants
   if(participant === room.localParticipant){
-    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;width:100%;text-align:right;margin-top:50px"></div>`);
-    const $controls = setupAudioVideocontrols(sid, identity, true, true, false);
-    videoDiv.append($controls); // Buttons on Video boxes
-    $container.append(videoDiv);
+    videoDiv.append(setupAudioVideocontrols($controls, sid, identity, true, true, false)); // Buttons on Video boxes
   }else if(isAdmin){
-    var videoDiv = $(`<div class="video-group" id="avbtn-${sid}" style="position:absolute;width:100%;text-align:right;margin-top:50px"></div>`);
-    const $controls = setupAudioVideocontrols(sid, identity, true, false, true);
-    videoDiv.append($controls); // Buttons on Video boxes
-    $container.append(videoDiv);
-
+    videoDiv.append(setupAudioVideocontrols($controls, sid, identity, true, false, true)); // Buttons on Video boxes
   }
+  $container.append(videoDiv);
 
   // Add the Participant's container to the DOM.
   $participants.append($container);
@@ -360,6 +387,8 @@ function trackPublished(publication, participant) {
           muteRemoteParticipantAudio($("#muteAudioBtn-"+messageBody.sid));
         }else if (messageBody.type === "UPDATE_REMOTE_VIDEO_ICON"){
           muteRemoteParticipantVideo($("#muteVideoBtn-"+messageBody.sid));
+        }else if (messageBody.type === "RAISE_UP_DOWN_HAND"){
+          raiseRemoteParticipantUpDown($("#handBtn-"+messageBody.sid));
         }
       }
     });
