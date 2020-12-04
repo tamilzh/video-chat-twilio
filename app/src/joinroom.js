@@ -228,7 +228,7 @@ function setupParticipantContainer(participant, room) {
   // Add a container for the Participant's media.
   const $container = $(`<div class="participant col-xs-12 col-sm-6 col-md-4" data-identity="${identity}" id="${sid}">
     <audio autoplay ${participant === room.localParticipant ? 'muted' : ''} style="opacity: 0"></audio>
-    <video autoplay muted playsinline style="opacity: 0"></video>
+    <video autoplay muted playsinline style="opacity: 0; ${participant === room.localParticipant ?'transform:scale(-1,1)':''}"></video>
   </div>`);
 
   // Toggle the pinning of the active Participant's video.
